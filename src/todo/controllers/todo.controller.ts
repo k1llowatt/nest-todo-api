@@ -24,12 +24,10 @@ export class TodoController {
 
   @Get(':id')
   async getOneAction(@Param('id') id: string): Promise<Todo> {
-    const todo = this.todoService.findOne(id);
+    const todo = await this.todoService.findOne(id);
     if (todo === undefined) {
-      console.log('Exception');
       throw new HttpException('Exception', HttpStatus.NOT_FOUND);
     }
-    console.log(todo);
     return todo;
   }
 
@@ -40,7 +38,6 @@ export class TodoController {
     if (todo.isCompleted !== undefined) {
       todo.isCompleted = createDto.isCompleted;
     }
-    console.log(`post ` + todo.title);
     return this.todoService.create(todo);
   }
 
@@ -50,9 +47,7 @@ export class TodoController {
     @Body() { title, isCompleted = false }: UpdateDto,
   ): Promise<Todo> {
     const todo = await this.todoService.findOne(id);
-    console.log(todo);
     if (todo === undefined) {
-      console.log('Exception');
       throw new HttpException('Exception', HttpStatus.NOT_FOUND);
     }
     todo.title = title;
@@ -61,11 +56,11 @@ export class TodoController {
   }
 
   @Delete(':id')
-  deleteAction(@Param('id') id: string): Promise<void> {
+  async deleteAction(@Param('id') id: string): Promise<void> {
+    const todo = await this.todoService.findOne(id);
+    if (todo === undefined) {
+      throw new HttpException('Exception', HttpStatus.NOT_FOUND);
+    }
     return this.todoService.remove(id);
   }
-  /*  @Delete()
-  deleteAllAction(@Param('id') id: string): Promise<void> {
-    return this.todoService.remove();
-  }*/
 }
